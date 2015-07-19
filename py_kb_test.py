@@ -4,9 +4,13 @@ Simpson College Computer Science
 http://programarcadegames.com/
 http://simpson.edu/computer-science/
 """
- 
+
+import sys
+import os
+import re 
 import pygame
- 
+import codecs
+
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -28,12 +32,49 @@ def draw_stick_figure(screen, x, y):
     # Arms
     pygame.draw.line(screen, RED, [5 + x, 7 + y], [9 + x, 17 + y], 2)
     pygame.draw.line(screen, RED, [5 + x, 7 + y], [1 + x, 17 + y], 2)
+
+import random
+
+scale = 2
+def rand_colors():
+  return [[random.randrange(256),random.randrange(256),random.randrange(256)] for i in  range(256)]
+colors = rand_colors()
+ 
+def show_ale_screen(screen, data, w, h):
+  byte_str = codecs.decode(data, 'hex_codec') 
+  for i in range(len(byte_str)):
+    ch = byte_str[i]
+    id = ord(ch)
+    x = i % w
+    y = i / w
+    rect = pygame.Rect((x*scale,y*scale), (scale, scale)) 
+    #pygame.draw.rect(screen, colors[id], Rect, width=0)
+    screen.fill(colors[id], rect)
+
+import socket
+
+HOST = 'localhost'    # The remote host
+PORT = 1567              # The same port as used by the server
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+head = s.recv(1024)
+m = re.match(r'(\d{3})\-(\d{3})', head)
+if not m:
+  sys.stderr.write("bad FIFO header")
+  sys.exit(1)
+
+width = int(m.group(1))
+height = int(m.group(2))
+
+print "IN:", head
+s.send("1,0,0,1\n")
+ 
  
 # Setup
 pygame.init()
  
 # Set the width and height of the screen [width,height]
-size = [700, 500]
+size = [width * scale, height * scale]
 screen = pygame.display.set_mode(size)
  
 pygame.display.set_caption("My Game")
@@ -46,17 +87,46 @@ clock = pygame.time.Clock()
  
 # Hide the mouse cursor
 pygame.mouse.set_visible(0)
+pause = False
  
-# Speed in pixels per frame
-x_speed = 0
-y_speed = 0
- 
-# Current position
-x_coord = 10
-y_coord = 10
- 
+ssz = width*height
 # -------- Main Program Loop -----------
+screen_str = ''
+episode_str =''
+
+class sock_lines:
+  def __init__(self, s):
+    self.s = s
+    self.buff = ''
+
+  def get_line(self):
+    pos = self.buff.find('\n')
+    while pos == -1:
+      data = self.s.recv(ssz*2+10)
+      pos = data.find('\n')
+      if pos != -1 :
+        pos += len(self.buff)
+      self.buff = self.buff + data
+    out = self.buff[:pos+1]
+    self.buff = self.buff[pos+1:]
+    return out
+      
+sl  = sock_lines(s)
 while not done:
+    if not pause:
+      #data = s.recv(ssz*2+10)
+      data = sl.get_line()
+      (screen_str, episode_str, delme) = data.split(":", 2)
+    
+      show_ale_screen(screen, screen_str, width, height)
+    else:
+      show_ale_screen(screen, screen_str, width, height)
+      rect = pygame.Rect((int(width*scale*0.4), int(height*scale*0.2)), (int(width*scale*0.2), int(height*scale*0.2)))
+      screen.fill([255,0,0], rect)
+    #print "IN:", data 
+    #sys.stdout.flush()
+  
+    action = 0
     # ALL EVENT PROCESSING SHOULD GO BELOW THIS COMMENT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -67,50 +137,75 @@ while not done:
             # Figure out if it was an arrow key. If so
             # adjust speed.
             if event.key == pygame.K_LEFT:
-                x_speed = -3
+                action = 4
             elif event.key == pygame.K_RIGHT:
-                x_speed = 3
+                action = 3
             elif event.key == pygame.K_UP:
-                y_speed = -3
+                action = 2
             elif event.key == pygame.K_DOWN:
-                y_speed = 3
- 
+                action = 5
+            elif event.key == pygame.K_SPACE:
+                pause = not pause
+            elif event.key == pygame.K_BACKSPACE:
+                action = 45 #reset
+            elif event.key == pygame.K_ESCAPE:
+                done = True
+            elif event.key == pygame.K_c:
+                colors = rand_colors()
+
         # User let up on a key
         elif event.type == pygame.KEYUP:
             # If it is an arrow key, reset vector back to zero
             if event.key == pygame.K_LEFT:
-                x_speed = 0
+                action = 0
             elif event.key == pygame.K_RIGHT:
-                x_speed = 0
+                action = 0
             elif event.key == pygame.K_UP:
-                y_speed = 0
+                action = 0
             elif event.key == pygame.K_DOWN:
-                y_speed = 0
+                action = 0
+    
+    if not pause:
+      keys=pygame.key.get_pressed()
+      if keys[pygame.K_a]:
+        action = 4
+      elif keys[pygame.K_d]:
+        action = 3
+      elif keys[pygame.K_w]:
+        action = 2
+      elif keys[pygame.K_s]:
+        action = 5
+      elif keys[pygame.K_j]:
+        action = 12
+      elif keys[pygame.K_l]:
+        action = 11
+      elif keys[pygame.K_i]:
+        action = 10
+      elif keys[pygame.K_k]:
+        action = 13
+
     # ALL EVENT PROCESSING SHOULD GO ABOVE THIS COMMENT
  
     # ALL GAME LOGIC SHOULD GO BELOW THIS COMMENT
- 
-    # Move the object according to the speed vector.
-    x_coord = x_coord + x_speed
-    y_coord = y_coord + y_speed
  
     # ALL GAME LOGIC SHOULD GO ABOVE THIS COMMENT
  
     # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
  
-    # First, clear the screen to WHITE. Don't put other drawing commands
-    # above this, or they will be erased with this command.
-    screen.fill(WHITE)
+    #screen.fill(WHITE)
  
-    draw_stick_figure(screen, x_coord, y_coord)
  
     # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
  
     # Go ahead and update the screen with what we've drawn.
+    if not pause:
+      s.send("%d,18\n"%action)
+    
     pygame.display.flip()
  
     # Limit to 20 frames per second
-    clock.tick(60)
+    clock.tick(30)
+
  
 # Close the window and quit.
 # If you forget this line, the program will 'hang'
