@@ -1,9 +1,11 @@
 #!/bin/bash
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 # port
 # 
 ALE_PORT=1567
-ALE_DIR=../Arcade-Learning-Environment
+ALE_DIR=${DIR}/../Arcade-Learning-Environment
 TEAM_DIR=teams/team_${ALE_PORT}
 
 function run_ale() {
@@ -38,7 +40,9 @@ function count_scores() {
   cat ${run_dir}/out_file.gz | zcat |\
   grep -oE '\:[0-9]*,[0-9]*\:$' |\
   tee ${run_dir}/episode_info |\
-  ./calc_scores.pl > ${run_dir}/scores.txt
+  ${DIR}/calc_scores.pl > ${run_dir}/scores.txt
+
+  [ "{$VERBOSE}" == 1 ] && { echo -n "${run_dir} scores :"; head -n1 ${run_dir}/scores.txt; } 
 }
 
 # get max previous run_id:
@@ -59,3 +63,4 @@ while true; do
 
   count_scores "${run_dir}"
 done
+
