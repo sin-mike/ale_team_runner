@@ -22,6 +22,7 @@ function run_ale() {
 
   nc -l "${ALE_PORT}" < "${pipe}" |\
   tee "$in_file" |\
+  perl -lpe 'BEGIN{$|=1} $_ = "1,0,0,1" if $.==1;' |\
   ${ALE_DIR}/ale \
     -game_controller fifo \
     -run_length_encoding false \
@@ -49,7 +50,7 @@ function count_scores() {
 run_id=$(
 find "$TEAM_DIR" -name 'run_*' |\
 grep -oE 'run_[0-9]{5}$' |\
-cut -c5- | sort -nr | head -n1\
+cut -c5- | sort -nr | head -n1 | perl -lpe 's!^0*([1-9])!$1!' \
 )
 [ -z "$run_id" ] && run_id=0
 
