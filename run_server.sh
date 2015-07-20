@@ -12,7 +12,7 @@ function authorize() {
   local run_dir="$1"
   
   # read first line
-  line=$(${DIR}/check_password.pl pfile.txt 2>&1)
+  line=$(${DIR}/check_password.pl ${TEAM_DIR}/pfile.txt 2>&1)
   if [ $? -eq 0 ]; then
     # run ALE here
     if [[ ! "$line" =~ ^[a-z]*$ ]]; then
@@ -20,6 +20,8 @@ function authorize() {
     elif [ ! -f "${DIR}/roms/${line}.bin" ]; then
       echo "ROM file not exists"  
     else
+      echo "${line}" > ${run_dir}/rom.txt
+
       perl -lpe 'BEGIN{$|=1} $_ = "1,0,0,1" if $.==1;' |\
       ${ALE_DIR}/ale \
         -game_controller fifo \
