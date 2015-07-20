@@ -49,6 +49,7 @@ function run_ale() {
   tee "$in_file" |\
   authorize ${run_dir} |\
   tee "${pipe}" |\
+  perl -lpe 's!^\:?\w+\:!:!g' |\
   gzip > "${out_file}.gz"
   
   #  -display_screen true \
