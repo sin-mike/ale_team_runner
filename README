@@ -1,4 +1,6 @@
 
 ## run simple console client using FIFO protocol 
+
+mkfifo client_fifo
 nc localhost 1567 < client_fifo |tee simple_in | ./simple | tee simple_out > client_fifo
 
