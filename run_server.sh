@@ -8,6 +8,31 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ALE_DIR=${DIR}/../Arcade-Learning-Environment
 TEAM_DIR=teams/team_${ALE_PORT}
 
+function authorize() {
+  local run_dir="$1"
+  
+  # read first line
+  line=$(${DIR}/check_password.pl pfile.txt 2>&1)
+  if [ $? -eq 0 ]; then
+    # run ALE here
+    if [[ ! "$line" =~ ^[a-z]*$ ]]; then
+      echo "BAD rom name: [${line}]"
+    elif [ ! -f "${DIR}/roms/${line}.bin" ]; then
+      echo "ROM file not exists"  
+    else
+      perl -lpe 'BEGIN{$|=1} $_ = "1,0,0,1" if $.==1;' |\
+      ${ALE_DIR}/ale \
+        -game_controller fifo \
+        -run_length_encoding false \
+        "${DIR}/roms/${line}.bin" 2>${run_dir}/ale.err
+    fi
+  else
+    echo "FAIL: [${line}]"
+  fi
+}
+
+
+
 function run_ale() {
   local run_dir="$1"
 
@@ -22,11 +47,7 @@ function run_ale() {
 
   nc -l "${ALE_PORT}" < "${pipe}" |\
   tee "$in_file" |\
-  perl -lpe 'BEGIN{$|=1} $_ = "1,0,0,1" if $.==1;' |\
-  ${ALE_DIR}/ale \
-    -game_controller fifo \
-    -run_length_encoding false \
-    ../DeepMind-Atari-Deep-Q-Learner/roms/breakout.bin 2>${run_dir}/ale.err |\
+  authorize ${run_dir} |\
   tee "${pipe}" |\
   gzip > "${out_file}.gz"
   

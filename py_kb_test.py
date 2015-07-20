@@ -54,14 +54,28 @@ def show_ale_screen(screen, data, w, h):
 
 import socket
 
+#HOST = '93.175.18.243'    # The remote host
 HOST = 'localhost'    # The remote host
 PORT = 1567              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
+
+  
+login = 'test'
+pwd = 'test12'
+rom = 'gother'
+if len(sys.argv) > 3:
+  login = sys.argv[1]
+  pwd = sys.argv[2]
+  rom = sys.argv[3]
+
+s.send("%s,%s,%s\n"%(login, pwd, rom))
+
+
 head = s.recv(1024)
 m = re.match(r'(\d{3})\-(\d{3})', head)
 if not m:
-  sys.stderr.write("bad FIFO header")
+  sys.stderr.write("bad FIFO header: [%s]"%head)
   sys.exit(1)
 
 width = int(m.group(1))
