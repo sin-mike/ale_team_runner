@@ -55,6 +55,8 @@ def show_ale_screen(screen, data, w, h):
 import socket
 
 #HOST = '93.175.18.243'    # The remote host
+#PORT = 17015
+
 HOST = 'localhost'    # The remote host
 PORT = 1567              # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
