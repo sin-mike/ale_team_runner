@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # port
 # 
-ALE_PORT=1567
+[ -z "${ALE_PORT}" ] && ALE_PORT=1567
 ALE_DIR=${DIR}/../Arcade-Learning-Environment
 TEAM_DIR=teams/team_${ALE_PORT}
 
@@ -45,6 +45,8 @@ function count_scores() {
 
   [ "{$VERBOSE}" == 1 ] && { echo -n "${run_dir} scores :"; head -n1 ${run_dir}/scores.txt; } 
 }
+
+mkdir -p $TEAM_DIR
 
 # get max previous run_id:
 run_id=$(
