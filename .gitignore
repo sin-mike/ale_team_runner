@@ -6,3 +6,5 @@ simple_out
 *.swo
 simple
 
+teams
+client_fifo
