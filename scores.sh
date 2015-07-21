@@ -27,13 +27,17 @@ function score_for_team() {
   #xargs -I{} bash -c 'echo {}'
 
   ## TODO: calc last-30
-
-
+  cat ${team_dir}/scores.txt | ${DIR}/scores_agg.pl > ${team_dir}/scores.agg.txt
 }
 
+[ -f ${DIR}/teams/scores.all.txt ] && mv ${DIR}/teams/scores.all.txt ${DIR}/teams/scores.all.txt.bkp
 for team_dir in $(find ${DIR}/teams -name "team_*"); do
+  
   echo "$team_dir"
   score_for_team $team_dir
+  
+  team_name=$(basename ${team_dir})
+  cat ${team_dir}/scores.agg.txt | perl -lpe '$_ = "'${team_name}' $_"' >> ${DIR}/teams/scores.all.txt
 done
 
 
