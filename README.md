@@ -36,3 +36,11 @@ echo "test,test12" | ./make_pfile.pl > teams/team_1567/pfile.txt
 mkfifo client_fifo
 nc localhost 1567 < client_fifo |tee simple_in | ./simple | tee simple_out > client_fifo
 ```
+
+
+## Calsulate team scores:
+```
+bash  scores.sh
+cat teams/scores.all.txt
+ 
+```
