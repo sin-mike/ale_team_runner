@@ -5,7 +5,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # port
 # 
 [ -z "${ALE_PORT}" ] && ALE_PORT=1567
-ALE_DIR=
+ALE_DIR=${DIR}/../Arcade-Learning-Environment
 TEAM_DIR=teams/team_${ALE_PORT}
 
 function authorize() {
@@ -23,7 +23,7 @@ function authorize() {
       echo "${line}" > ${run_dir}/rom.txt
 
       perl -lpe 'BEGIN{$|=1} $_ = "1,0,0,1" if $.==1;' |\
-      ${ALE_DIR}ale \
+      ${ALE_DIR}/ale \
         -game_controller fifo \
         -run_length_encoding false \
         -max_num_frames 18000 \
@@ -49,8 +49,10 @@ function run_ale() {
   local out_file=${run_dir}/out_file
 
   nc -l "${ALE_PORT}" < "${pipe}" |\
+  uncompress -c |\
   tee "$in_file" |\
   authorize ${run_dir} |\
+  compress -c |\
   tee "${pipe}" |\
   perl -lpe 'BEGIN{$|=1} s!^\:?\w+\:!:!g' |\
   gzip > "${out_file}.gz"
