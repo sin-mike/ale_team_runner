@@ -5,7 +5,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # port
 # 
 [ -z "${ALE_PORT}" ] && ALE_PORT=1567
-ALE_DIR=${DIR}/../Arcade-Learning-Environment
+ALE_DIR=/Users/mike/deeppen/deep_q_rl/build/ALE
 TEAM_DIR=teams/team_${ALE_PORT}
 
 function authorize() {
@@ -26,6 +26,7 @@ function authorize() {
       ${ALE_DIR}/ale \
         -game_controller fifo \
         -run_length_encoding false \
+        -display_screen true\
         "${DIR}/roms/${line}.bin" 2>${run_dir}/ale.err
     fi
   else
