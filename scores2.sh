@@ -1,8 +1,7 @@
 #!/bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-#DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/teams_2015-07-22"
-echo $DIR
+
 function score_for_run() {
   local run_dir="$1"
 
@@ -10,6 +9,7 @@ function score_for_run() {
   local scores=$(cat ${run_dir}/scores.txt 2>/dev/null)
   local rom=$(cat ${run_dir}/rom.txt 2>/dev/null)
   local run=$(basename ${run_dir})
+  local date_of_run=$()
 
   #echo "$run $rom $scores" 1>&2
   [ -z "$scores" -o -z "$rom" ] || \

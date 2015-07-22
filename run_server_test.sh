@@ -49,8 +49,10 @@ function run_ale() {
   local out_file=${run_dir}/out_file
 
   nc -l "${ALE_PORT}" < "${pipe}" |\
+  uncompress -c |\
   tee "$in_file" |\
   authorize ${run_dir} |\
+  compress -c |\
   tee "${pipe}" |\
   perl -lpe 'BEGIN{$|=1} s!^\:?\w+\:!:!g' |\
   gzip > "${out_file}.gz"
