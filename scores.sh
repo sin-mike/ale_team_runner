@@ -5,15 +5,21 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 echo $DIR
 function score_for_run() {
   local run_dir="$1"
+  local team_dir=$(dirname ${run_dir})
+  local team=$(basename ${team_dir})
 
   #echo "$run_dir" 1>&2
   local scores=$(cat ${run_dir}/scores.txt 2>/dev/null)
   local rom=$(cat ${run_dir}/rom.txt 2>/dev/null)
   local run=$(basename ${run_dir})
+  
+  if [ ! -z "$scores" -a ! -z "$rom" ]; then
+    local epoch=$(stat -c %Y ${run_dir}/scores.txt) 
+    local date_time=$(stat -c %y ${run_dir}/scores.txt) 
 
-  #echo "$run $rom $scores" 1>&2
-  [ -z "$scores" -o -z "$rom" ] || \
-  echo "$run $rom $scores"
+    #echo "$run $rom $scores" 1>&2
+    echo "${team};${run};${rom};${epoch};${date_time};${scores}"
+  fi
 }
 
 export -f score_for_run
@@ -31,6 +37,7 @@ function score_for_team() {
   cat ${team_dir}/scores.txt | ${DIR}/scores_agg.pl > ${team_dir}/scores.agg.txt
 }
 
+[ -f ${DIR}/teams/scores.agg.all.txt ] && mv ${DIR}/teams/scores.agg.all.txt ${DIR}/teams/scores.agg.all.txt.bkp
 [ -f ${DIR}/teams/scores.all.txt ] && mv ${DIR}/teams/scores.all.txt ${DIR}/teams/scores.all.txt.bkp
 for team_dir in $(find ${DIR}/teams -name "team_*"); do
   
@@ -38,7 +45,8 @@ for team_dir in $(find ${DIR}/teams -name "team_*"); do
   score_for_team $team_dir
   
   team_name=$(basename ${team_dir})
-  cat ${team_dir}/scores.agg.txt | perl -lpe '$_ = "'${team_name}' $_"' >> ${DIR}/teams/scores.all.txt
+  cat ${team_dir}/scores.agg.txt >> ${DIR}/teams/scores.agg.all.txt
+  cat ${team_dir}/scores.txt >> ${DIR}/teams/scores.all.txt
 done
 
 
