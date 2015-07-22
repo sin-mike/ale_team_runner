@@ -21,6 +21,11 @@ $ nc localhost 1567
 ```
 
 ## Run server on local machine
+install dependencies
+```
+sudo perl -MCPAN -e 'notest install Digest::SHA1'
+```
+
 ```
 mkdir -p teams/team_1567
 echo "test,test12" | ./make_pfile.pl > teams/team_1567/pfile.txt
