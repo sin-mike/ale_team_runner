@@ -28,6 +28,7 @@ function authorize() {
         -run_length_encoding false \
         -max_num_frames 540100 \
         -max_num_frames_per_episode 18000 \
+        -display_screen true
         "${DIR}/roms/${line}.bin" 2>${run_dir}/ale.err
     fi
   else
