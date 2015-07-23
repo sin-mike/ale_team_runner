@@ -26,7 +26,8 @@ function authorize() {
       ${ALE_DIR}/ale \
         -game_controller fifo \
         -run_length_encoding false \
-        -max_num_frames 18000 \
+        -max_num_frames 540100 \
+        -max_num_frames_per_episode 18000 \
         "${DIR}/roms/${line}.bin" 2>${run_dir}/ale.err
     fi
   else
@@ -66,10 +67,32 @@ function count_scores() {
   cat ${run_dir}/out_file.gz | zcat |\
   grep -oE '\:[0-9]*,[0-9]*\:$' |\
   tee ${run_dir}/episode_info |\
+  ${DIR}/calc_scores.pl > ${run_dir}/scores.old.txt
+ 
+  cat ${run_dir}/episode_info |\
+  perl -lne 'm!^\:(\d+)\,(\d+)\:$!; print "$1,$2"' \
+  > ${run_dir}/episode_info.txt
+
+  tail -n+2 ${run_dir}/in_file |\
+  paste -d',' - ${run_dir}/episode_info.txt |\
+  tail -n+2 |\
+  tee ${run_dir}/scores.raw |\
+  ${DIR}/calc_scores_ok.pl > ${run_dir}/scores.txt
+
+  [ "{$VERBOSE}" == 1 ] && { echo "${run_dir} scores :"; cat ${run_dir}/scores.txt; } 
+}
+
+function count_scores_bkp() {
+  local run_dir="$1"
+  [ -f ${run_dir}/out_file.gz ] || return
+  cat ${run_dir}/out_file.gz | zcat |\
+  grep -oE '\:[0-9]*,[0-9]*\:$' |\
+  tee ${run_dir}/episode_info |\
   ${DIR}/calc_scores.pl > ${run_dir}/scores.txt
 
   [ "{$VERBOSE}" == 1 ] && { echo -n "${run_dir} scores :"; head -n1 ${run_dir}/scores.txt; } 
 }
+
 
 mkdir -p $TEAM_DIR
 
