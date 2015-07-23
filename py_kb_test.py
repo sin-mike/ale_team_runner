@@ -12,8 +12,8 @@ import re
 import pygame
 import codecs
 
-
 import logging
+
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -73,8 +73,6 @@ if len(sys.argv) > 3:
   login = sys.argv[1]
   pwd = sys.argv[2]
   rom = sys.argv[3]
-else:
-  raise Exception(r"specify input parameters: %login %pwd %rom")
 
 line = "%s,%s,%s\n"%(login, pwd, rom)
 logging.warning('>>>>'+line)
@@ -135,8 +133,10 @@ class sock_lines:
     return out
       
 sl  = sock_lines(s)
+currentstep = 0;
 while not done:
     if not pause:
+      currentstep = currentstep+1
       #data = s.recv(ssz*2+10)
       data = sl.get_line()
       (screen_str, episode_str, delme) = data.split(":", 2)
@@ -151,6 +151,8 @@ while not done:
   
     action = 0
     # ALL EVENT PROCESSING SHOULD GO BELOW THIS COMMENT
+    terminal, reward = episode_str.split(',', 1)
+    logging.warning('frame '+ str(currentstep) + ' reward: '+ reward + ' terminal: '+ terminal + ' delme' + delme)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
