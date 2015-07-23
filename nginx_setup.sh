@@ -1,5 +1,7 @@
+user="ubuntu"
+folder="/"
 cd /usr/share/nginx/html
-mkdir scores
+sudo mkdir scores
 cd scores
 
 for i in {1..15}
@@ -12,7 +14,7 @@ do
   fi
   echo $n;
   pwd
-  sudo ln -s "/home/user/coding/ale_team_runner/teams/team_170${n}" "team${i}"
+  sudo ln -s "/home/${user}${folder}/ale_team_runner/teams/team_170${n}" "team${i}"
 #  ls -al ./
   pwd
   cd "team${i}"
