@@ -5,7 +5,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # port
 # 
 [ -z "${ALE_PORT}" ] && ALE_PORT=1567
-ALE_DIR=/Users/mike/deeppen/deep_q_rl/build/ALE
+ALE_DIR=
 TEAM_DIR=teams/team_${ALE_PORT}
 
 function authorize() {
@@ -28,7 +28,7 @@ function authorize() {
         -run_length_encoding false \
         -max_num_frames 540100 \
         -max_num_frames_per_episode 18000 \
-        -display_screen true
+        -display_screen true \
         "${DIR}/roms/${line}.bin" 2>${run_dir}/ale.err
     fi
   else

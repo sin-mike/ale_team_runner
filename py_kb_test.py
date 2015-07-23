@@ -12,6 +12,9 @@ import re
 import pygame
 import codecs
 
+
+import logging
+
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -65,14 +68,17 @@ s.connect((HOST, PORT))
   
 login = 'test'
 pwd = 'test12'
-rom = 'gother'
+rom = 'gopher'
 if len(sys.argv) > 3:
   login = sys.argv[1]
   pwd = sys.argv[2]
   rom = sys.argv[3]
+else:
+  raise Exception(r"specify input parameters: %login %pwd %rom")
 
-s.send("%s,%s,%s\n"%(login, pwd, rom))
-
+line = "%s,%s,%s\n"%(login, pwd, rom)
+logging.warning('>>>>'+line)
+s.send(line)
 
 head = s.recv(1024)
 m = re.match(r'(\d{3})\-(\d{3})', head)
