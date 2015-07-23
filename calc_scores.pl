@@ -10,5 +10,5 @@ while(<STDIN>) {
   $reward += $2;
   last if $1;
 }
-
+while(<STDIN>){}
 print "$reward\n"
