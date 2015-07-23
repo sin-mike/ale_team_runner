@@ -9,7 +9,7 @@ function score_for_run() {
   local team=$(basename ${team_dir})
 
   #echo "$run_dir" 1>&2
-  local scores=$(cat ${run_dir}/scores.txt 2>/dev/null)
+  local scores=$(head -n1 ${run_dir}/scores.txt 2>/dev/null)
   local rom=$(cat ${run_dir}/rom.txt 2>/dev/null)
   local run=$(basename ${run_dir})
   
@@ -18,7 +18,8 @@ function score_for_run() {
     local date_time=$(stat -c %y ${run_dir}/scores.txt) 
 
     #echo "$run $rom $scores" 1>&2
-    echo "${team};${run};${rom};${epoch};${date_time};${scores}"
+    cat ${run_dir}/scores.txt | tr ',' ';' |\
+    xargs -I{} echo "${team};${run};${rom};${epoch};${date_time};{}"
   fi
 }
 
